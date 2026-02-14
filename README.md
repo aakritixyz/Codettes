@@ -1,4 +1,5 @@
 **Annadata**
+
 Food Authenticity & Price Intelligence Engine
 
 Annadata detects economically impossible food pricing using official recipes and real-time ingredient costs.
