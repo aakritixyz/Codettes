@@ -6,6 +6,7 @@ import asyncio
 
 app = FastAPI()
 
+# 1. CORS Fix (Taaki frontend map load kar sake)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -13,9 +14,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# API Config - Double check your API key
 API_KEY = "C5t4v6LQb7xQU1FsWioW3NHTSUPMHOM8peV9wQDAERKWmSHx"
 HEADERS = {"Authorization": f"Bearer {API_KEY}"}
-RECIPE_URL = "https://api.foodoscope.com/recipe2-api/recipes-calories/calories"
+RECIPE_URL = "http://cosylab.iiitd.edu.in:6969/recipe2-api/recipes-calories/calories"
 
 recipes_cache = {}
 
@@ -24,7 +26,11 @@ async def fetch_data(client, page):
     try:
         res = await client.get(RECIPE_URL, headers=HEADERS, params=params, timeout=10.0)
         return res.json().get("data", []) if res.status_code == 200 else []
-    except: return []
+    except Exception as e:
+        print(f"Fetch Error: {e}")
+        return []
+
+# --- ROUTES START ---
 
 @app.get("/get-menu")
 async def get_menu():
@@ -42,7 +48,8 @@ async def analyze(data: dict):
     price = float(data.get("vendor_price", 0))
     recipe = recipes_cache.get(dish)
 
-    if not recipe: return {"error": "Dish not found"}
+    if not recipe:
+        return {"error": "Dish not found in cache"}
 
     cals = float(recipe.get("Calories") or 400)
     time = float(recipe.get("cook_time") or 15) + float(recipe.get("prep_time") or 10)
@@ -53,7 +60,7 @@ async def analyze(data: dict):
     
     status = "SAFE" if price >= (honest_cost * 0.85) else "DANGER"
 
-    # --- NUTRITION IMPACT FEATURE ---
+    # Nutrition Metrics logic
     nutrition_metrics = [
         {"label": "Vitamins", "value": "Optimal", "color": "#10b981"},
         {"label": "Protein", "value": "Natural", "color": "#10b981"},
@@ -72,7 +79,7 @@ async def analyze(data: dict):
         "honest_cost": honest_cost,
         "nutrition_impact": nutrition_metrics,
         "suggestions": [
-            {"original": "Butter", "substitute": "Diacetyl Compound", "science": "High shared molecular profile."}
+            {"original": "Butter/Ghee", "substitute": "Hydrogenated Fat", "science": "Molecular similarity matches industrial fillers."}
         ] if status == "DANGER" else [],
         "breakdown": [
             {"item": "Raw Material", "cost": raw_cost},
@@ -81,14 +88,10 @@ async def analyze(data: dict):
         ]
     }
 
-if __name__ == "__main__":
-    uvicorn.run(app, host="127.0.0.1", port=8080)
-
-
+# YEH SABSE ZAROORI HAI: uvicorn se pehle define karna
 @app.get("/get-heatmap-data")
 async def get_heatmap_data():
-    # Mock Data: Real world mein ye Mandi API se aayega
-    # Risk 0.8+ (High), 0.5 (Medium), 0.2 (Low)
+    print("Heatmap Data Requested") # Debugging ke liye terminal mein dikhega
     return [
         {"lat": 26.8467, "lng": 80.9462, "city": "Lucknow", "risk": 0.9, "inflation": "+18%"},
         {"lat": 28.6139, "lng": 77.2090, "city": "Delhi NCR", "risk": 0.7, "inflation": "+12%"},
@@ -96,3 +99,9 @@ async def get_heatmap_data():
         {"lat": 27.1767, "lng": 78.0081, "city": "Agra", "risk": 0.85, "inflation": "+15%"},
         {"lat": 25.3176, "lng": 82.9739, "city": "Varanasi", "risk": 0.3, "inflation": "+2%"}
     ]
+
+# --- ROUTES END ---
+
+if __name__ == "__main__":
+    print("Annadata Engine Running on http://127.0.0.1:8080")
+    uvicorn.run(app, host="127.0.0.1", port=8080)
