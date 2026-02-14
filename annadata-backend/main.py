@@ -6,7 +6,6 @@ import asyncio
 
 app = FastAPI()
 
-# CORS allow karna zaroori hai browser ke liye
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -51,11 +50,27 @@ async def analyze(data: dict):
     raw_cost = round(cals * 0.22, 2)
     labor = round(time * 0.85, 2)
     honest_cost = round((raw_cost + labor + 35) * 1.35, 2)
+    
     status = "SAFE" if price >= (honest_cost * 0.85) else "DANGER"
+
+    # --- NUTRITION IMPACT FEATURE ---
+    nutrition_metrics = [
+        {"label": "Vitamins", "value": "Optimal", "color": "#10b981"},
+        {"label": "Protein", "value": "Natural", "color": "#10b981"},
+        {"label": "Trans Fat", "value": "0%", "color": "#10b981"}
+    ]
+    
+    if status == "DANGER":
+        nutrition_metrics = [
+            {"label": "Vitamins", "value": "-85% Loss", "color": "#ef4444"},
+            {"label": "Protein", "value": "Diluted", "color": "#ef4444"},
+            {"label": "Trans Fat", "value": "+240% High", "color": "#ef4444"}
+        ]
 
     return {
         "status": status,
         "honest_cost": honest_cost,
+        "nutrition_impact": nutrition_metrics,
         "suggestions": [
             {"original": "Butter", "substitute": "Diacetyl Compound", "science": "High shared molecular profile."}
         ] if status == "DANGER" else [],

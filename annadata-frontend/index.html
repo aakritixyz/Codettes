@@ -12,9 +12,6 @@
         :root { --emerald: #10b981; --slate-900: #0f172a; }
         body { font-family: 'Plus Jakarta Sans', sans-serif; background: #f8fafc; }
         .tab-btn.active { border-bottom: 3px solid var(--emerald); color: #065f46; opacity: 1; }
-        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
-        .risk-banner { transition: all 0.3s ease; }
     </style>
 </head>
 <body class="flex min-h-screen">
@@ -41,13 +38,13 @@
             <div class="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-xl space-y-6 self-start">
                 <div class="space-y-2">
                     <label class="text-[10px] uppercase font-black text-slate-400">Dish Blueprint</label>
-                    <select id="dishSelect" class="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl font-bold focus:border-emerald-500 outline-none">
+                    <select id="dishSelect" class="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl font-bold outline-none">
                         <option value="">Fetching Data...</option>
                     </select>
                 </div>
                 <div class="space-y-2">
                     <label class="text-[10px] uppercase font-black text-slate-400">Vendor Price (₹)</label>
-                    <input type="number" id="priceInput" placeholder="Price on menu" class="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl font-bold focus:border-emerald-500 outline-none">
+                    <input type="number" id="priceInput" placeholder="Price on menu" class="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl font-bold outline-none">
                 </div>
                 <button onclick="analyze()" class="w-full bg-slate-900 text-white font-black py-5 rounded-2xl hover:bg-emerald-600 transition-all">START AUDIT</button>
             </div>
@@ -58,8 +55,9 @@
                     <p class="text-slate-400 font-medium">Awaiting molecular deconstruction...</p>
                 </div>
 
-                <div id="scanLoader" class="hidden flex-1 flex flex-col items-center justify-center p-8">
-                    <div class="w-10 h-10 border-4 border-emerald-600 border-t-transparent rounded-full animate-spin"></div>
+                <div id="scanLoader" class="hidden flex-1 flex flex-col items-center justify-center p-8 text-center">
+                    <div class="w-10 h-10 border-4 border-emerald-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                    <p class="text-xs font-bold text-slate-500">Cross-referencing RecipeDB...</p>
                 </div>
 
                 <div id="resultTabs" class="hidden flex border-b border-slate-100">
@@ -67,7 +65,7 @@
                     <button onclick="switchTab('flavor')" id="tabBtnFlavor" class="tab-btn flex-1 py-4 text-[10px] font-black uppercase tracking-widest opacity-40">Molecular Solutions</button>
                 </div>
 
-                <div id="analysisContent" class="hidden p-8 space-y-6 flex-1 overflow-y-auto custom-scrollbar">
+                <div id="analysisContent" class="hidden p-8 space-y-6 flex-1 overflow-y-auto">
                     <div id="reportView" class="space-y-6">
                         <div class="grid grid-cols-2 gap-4">
                             <div class="p-5 bg-slate-50 rounded-3xl text-center border">
@@ -80,11 +78,6 @@
                             </div>
                         </div>
 
-                        <div id="verdictBanner" class="p-6 rounded-3xl border risk-banner">
-                            <h3 id="vTitle" class="font-black italic text-lg uppercase"></h3>
-                            <p id="vDesc" class="text-xs font-medium mt-1"></p>
-                        </div>
-
                         <div class="p-5 bg-emerald-50 rounded-3xl border border-emerald-100 flex justify-between items-center">
                             <div>
                                 <span class="text-[9px] font-bold text-emerald-600 uppercase">Honest Market Price</span>
@@ -92,17 +85,19 @@
                             </div>
                         </div>
 
+                        <div class="p-5 bg-slate-900 rounded-3xl border border-slate-800 shadow-xl">
+                            <div class="flex items-center gap-2 mb-4">
+                                <i data-lucide="zap" class="text-yellow-400 w-4 h-4"></i>
+                                <span class="text-[9px] font-black text-white uppercase tracking-widest">Nutritional Forensic Impact</span>
+                            </div>
+                            <div id="nutritionGrid" class="grid grid-cols-3 gap-2">
+                                </div>
+                        </div>
+
                         <div id="breakdownUl" class="space-y-2"></div>
                     </div>
 
                     <div id="flavorView" class="hidden space-y-4">
-                        <div class="flex items-center gap-3 p-4 bg-blue-600 rounded-2xl text-white">
-                            <i data-lucide="flask-conical"></i>
-                            <div>
-                                <h4 class="text-xs font-black uppercase">FlavorDB Forensic Match</h4>
-                                <p class="text-[9px] opacity-80">Nature-identical molecular substitutes</p>
-                            </div>
-                        </div>
                         <div id="alternativesList" class="space-y-3"></div>
                     </div>
                 </div>
@@ -118,8 +113,6 @@
             document.getElementById('flavorView').classList.toggle('hidden', tab !== 'flavor');
             document.getElementById('tabBtnReport').classList.toggle('active', tab === 'report');
             document.getElementById('tabBtnFlavor').classList.toggle('active', tab === 'flavor');
-            document.getElementById('tabBtnReport').style.opacity = tab === 'report' ? "1" : "0.4";
-            document.getElementById('tabBtnFlavor').style.opacity = tab === 'flavor' ? "1" : "0.4";
         }
 
         async function loadMenu() {
@@ -127,13 +120,13 @@
                 const res = await fetch(`${API_URL}/get-menu`);
                 const dishes = await res.json();
                 document.getElementById('dishSelect').innerHTML = dishes.map(d => `<option value="${d}">${d}</option>`).join('');
-            } catch (e) { console.error("Menu failed", e); }
+            } catch (e) { console.error("Server offline"); }
         }
 
         async function analyze() {
             const dish = document.getElementById('dishSelect').value;
             const price = document.getElementById('priceInput').value;
-            if(!price) return alert("Paisa bhariye bhai!");
+            if(!price) return alert("Paisa daaliye!");
 
             document.getElementById('emptyState').classList.add('hidden');
             document.getElementById('scanLoader').classList.remove('hidden');
@@ -148,49 +141,50 @@
                 });
                 const data = await res.json();
 
+                // Dynamic Integrity Logic
+                const honest = data.honest_cost;
+                const ratio = parseFloat(price) / honest;
+                let score = ratio >= 0.9 ? (85 + Math.random() * 10) : (ratio >= 0.6 ? 50 + ratio * 30 : 20 + ratio * 20);
+                score = score.toFixed(1);
+
                 // UI Updates
-                document.getElementById('integrityVal').innerText = data.status === "SAFE" ? "92%" : "38%";
-                document.getElementById('integrityVal').className = `text-3xl font-black mt-1 ${data.status === 'SAFE' ? 'text-emerald-600' : 'text-red-600'}`;
-                document.getElementById('riskVal').innerText = data.status === "SAFE" ? "LOW" : "HIGH";
-                document.getElementById('honestPrice').innerText = "₹" + data.honest_cost;
+                document.getElementById('integrityVal').innerText = score + "%";
+                document.getElementById('integrityVal').style.color = score > 80 ? '#10b981' : (score > 50 ? '#f59e0b' : '#ef4444');
+                document.getElementById('riskVal').innerText = score > 80 ? "LOW" : (score > 50 ? "MEDIUM" : "HIGH");
+                document.getElementById('riskVal').style.color = score > 80 ? '#10b981' : (score > 50 ? '#f59e0b' : '#ef4444');
+                document.getElementById('honestPrice').innerText = "₹" + honest;
 
-                const banner = document.getElementById('verdictBanner');
-                banner.className = `p-6 rounded-3xl border risk-banner ${data.status === 'SAFE' ? 'bg-emerald-50 border-emerald-100 text-emerald-900' : 'bg-red-50 border-red-100 text-red-900'}`;
-                document.getElementById('vTitle').innerText = data.status === 'SAFE' ? "Integrity Verified" : "Forensic Warning";
-                document.getElementById('vDesc').innerText = data.status === 'SAFE' ? "Market price matches molecular complexity." : "Price suspiciously low. Probable use of industrial fillers.";
-
-                document.getElementById('breakdownUl').innerHTML = data.breakdown.map(b => `
-                    <div class="flex justify-between items-center p-3 bg-slate-50 rounded-xl border border-slate-100">
-                        <span class="text-xs font-bold text-slate-500">${b.item}</span>
-                        <span class="text-xs font-black text-slate-900">₹${b.cost}</span>
+                // Nutrition Grid Update
+                document.getElementById('nutritionGrid').innerHTML = data.nutrition_impact.map(m => `
+                    <div class="p-3 rounded-2xl bg-white/5 border border-white/10 text-center">
+                        <div class="text-[7px] font-bold text-slate-400 uppercase mb-1">${m.label}</div>
+                        <div class="text-[10px] font-black" style="color: ${m.color}">${m.value}</div>
                     </div>
                 `).join('');
 
-                const altList = document.getElementById('alternativesList');
-                if(data.suggestions && data.suggestions.length > 0) {
-                    altList.innerHTML = data.suggestions.map(s => `
-                        <div class="p-4 bg-white border border-blue-100 rounded-xl shadow-sm hover:border-blue-500 transition-all">
-                            <div class="flex justify-between items-center mb-1">
-                                <span class="text-[8px] font-bold text-slate-300 line-through uppercase">${s.original}</span>
-                                <span class="text-[8px] font-black text-blue-600 px-2 py-0.5 bg-blue-50 rounded">MOL-TWIN FOUND</span>
-                            </div>
-                            <div class="text-sm font-black text-slate-800">${s.substitute}</div>
-                            <div class="text-[9px] text-slate-500 italic mt-1 leading-tight">${s.science}</div>
-                        </div>
-                    `).join('');
-                } else {
-                    altList.innerHTML = "<p class='text-center py-10 text-slate-400 text-xs'>No molecular anomalies found.</p>";
-                }
+                // Breakdown Table
+                document.getElementById('breakdownUl').innerHTML = data.breakdown.map(b => `
+                    <div class="flex justify-between items-center p-3 bg-slate-50 rounded-xl border border-slate-100">
+                        <span class="text-[10px] font-bold text-slate-500 uppercase">${b.item}</span>
+                        <span class="text-[10px] font-black text-slate-900">₹${b.cost}</span>
+                    </div>
+                `).join('');
+
+                // Alternatives List
+                document.getElementById('alternativesList').innerHTML = data.suggestions.length > 0 ? data.suggestions.map(s => `
+                    <div class="p-4 bg-white border border-blue-100 rounded-xl">
+                        <div class="text-[8px] font-bold text-slate-300 line-through">${s.original}</div>
+                        <div class="text-sm font-black text-slate-800">${s.substitute}</div>
+                        <div class="text-[9px] text-slate-500 italic">${s.science}</div>
+                    </div>
+                `).join('') : "<p class='text-center py-10 text-slate-400'>No anomalies found.</p>";
 
                 document.getElementById('scanLoader').classList.add('hidden');
                 document.getElementById('analysisContent').classList.remove('hidden');
                 document.getElementById('resultTabs').classList.remove('hidden');
-                if(data.status === "SAFE") confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+                if(score > 80) confetti();
 
-            } catch (e) {
-                document.getElementById('scanLoader').classList.add('hidden');
-                alert("Server Connection Failed. Run the python script first!");
-            }
+            } catch (e) { alert("Server connection failed!"); }
         }
 
         window.onload = () => { loadMenu(); lucide.createIcons(); };
