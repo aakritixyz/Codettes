@@ -13,7 +13,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-API_KEY = "-VLoVkZcvaCR9xhQcuJRxf_o44CEjKTub7hSQUnSItP3NxBr"
+API_KEY = "C5t4v6LQb7xQU1FsWioW3NHTSUPMHOM8peV9wQDAERKWmSHx"
 HEADERS = {"Authorization": f"Bearer {API_KEY}"}
 RECIPE_URL = "https://api.foodoscope.com/recipe2-api/recipes-calories/calories"
 
@@ -83,3 +83,16 @@ async def analyze(data: dict):
 
 if __name__ == "__main__":
     uvicorn.run(app, host="127.0.0.1", port=8080)
+
+
+@app.get("/get-heatmap-data")
+async def get_heatmap_data():
+    # Mock Data: Real world mein ye Mandi API se aayega
+    # Risk 0.8+ (High), 0.5 (Medium), 0.2 (Low)
+    return [
+        {"lat": 26.8467, "lng": 80.9462, "city": "Lucknow", "risk": 0.9, "inflation": "+18%"},
+        {"lat": 28.6139, "lng": 77.2090, "city": "Delhi NCR", "risk": 0.7, "inflation": "+12%"},
+        {"lat": 26.4499, "lng": 80.3319, "city": "Kanpur", "risk": 0.4, "inflation": "+5%"},
+        {"lat": 27.1767, "lng": 78.0081, "city": "Agra", "risk": 0.85, "inflation": "+15%"},
+        {"lat": 25.3176, "lng": 82.9739, "city": "Varanasi", "risk": 0.3, "inflation": "+2%"}
+    ]
