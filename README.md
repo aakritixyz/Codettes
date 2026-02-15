@@ -1,4 +1,4 @@
-**Annadata**
+🛡 Annadata
 
 Food Authenticity & Price Intelligence Engine
 
@@ -8,7 +8,7 @@ If a dish costs less than its ingredients, adulteration becomes likely. We ident
 
 ⸻
 
-The Problem
+🚨 The Problem
 
 Rising food inflation pushes vendors into a Survival vs Safety dilemma.
 
@@ -23,7 +23,7 @@ Consumers cannot tell whether a cheap dish is:
 
 ⸻
 
-Our Solution
+🧠 Our Solution
 
 Annadata calculates the Honest Cost of a dish in real time.
 
@@ -42,9 +42,9 @@ We compute the minimum feasible cost to prepare the dish properly.
 Step 4: Risk Detection
 
 We compare vendor price vs Honest Cost and generate a:
-	•	Safe
-	•	Medium Risk
-	•	High Risk
+	•Safe
+	•Medium Risk
+	•High Risk
 
 Step 5: Safe Alternatives
 
@@ -52,21 +52,23 @@ If risk is high, we suggest natural, safe substitutes based on flavor and molecu
 
 ⸻
 
- Use Cases
-	•	City-wide food safety mapping
-	•	Real-time Safety Score during digital payments
-	• Bulk feeding systems (schools, hostels)
-	• Food inflation monitoring
+🌍 Use Cases
+	•City-wide food safety mapping
+	•Real-time Safety Score during digital payments
+	•Bulk feeding systems (schools, hostels)
+	•Food inflation monitoring
 
 ⸻
 
-Tech Stack
+🏗 Tech Stack
 	•	Frontend: HTML, CSS, JavaScript (Website-first, responsive)
 	•	Backend: Node.js, Express
 	•	APIs: Recipe data, Live price feeds, Flavor & molecular profiling
 
 ⸻
- Vision
+
+🎯 Vision
 
 Annadata is not just a price checker.
 It is a preventive food safety intelligence system that uses economics to detect adulteration risk before harm occurs :)
+
